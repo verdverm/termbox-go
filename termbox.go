@@ -481,7 +481,18 @@ func extract_event(inbuf []byte, event *Event, allow_esc_wait bool) extract_even
 			event.N = 1
 			return event_extracted
 		case input_mode&InputAlt != 0:
-			// if we're in alt mode, set Alt modifier to event and redo parsing
+			// if we're in alt mode...
+
+			// Add... then assume <escape>
+			if len(inbuf) == 0 {
+				event.Ch = 0
+				event.Key = KeyEsc
+				event.Mod = 0
+				event.N = 1
+				return event_extracted
+			}
+
+			// Otherwise, add <alt> modifier to event and redo parsing
 			event.Mod = ModAlt
 			status := extract_event(inbuf[1:], event, false)
 			if status == event_extracted {
